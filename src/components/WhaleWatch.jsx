@@ -14,18 +14,20 @@ import { gsap } from 'gsap';
 import { detectWhaleActivity, getWhaleInsights, analyzeWhaleWithAI } from '../services/whaleTracker';
 import { isAIEnabled, askCryptoAssistant } from '../services/aiService';
 
+import { theme } from '../styles/theme';
+
 const { Text, Paragraph, Title } = Typography;
 
 const WhaleCard = styled(Card)`
-  background: rgba(255, 255, 255, 0.03);
+  background: ${theme.colors.cardBg};
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  border: 1px solid ${theme.colors.borderLight};
+  border-radius: ${theme.borderRadius.xl};
+  font-family: ${theme.typography.fontFamily};
   letter-spacing: -0.02em;
   
   .ant-card-head {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid ${theme.colors.borderLight};
   }
   
   .ant-card-head-title {
@@ -34,37 +36,37 @@ const WhaleCard = styled(Card)`
 `;
 
 const BentoTile = styled.div`
-  background: rgba(255, 255, 255, 0.05);
+  background: ${theme.colors.cardBg};
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 20px;
+  border: 1px solid ${theme.colors.borderLight};
+  border-radius: ${theme.borderRadius.xl};
+  padding: ${theme.spacing.xl};
   height: 100%;
   transition: all 0.3s ease;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: ${theme.typography.fontFamily};
   
   &:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: ${theme.shadows.lg};
   }
 `;
 
 const SignalItem = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  padding: 12px;
-  margin-bottom: 8px;
-  border-radius: 8px;
+  background: ${theme.colors.cardBg};
+  padding: ${theme.spacing.md};
+  margin-bottom: ${theme.spacing.sm};
+  border-radius: ${theme.borderRadius.sm};
   border-left: 4px solid ${props => {
-    if (props.severity === 'danger') return '#f5222d';
-    if (props.severity === 'warning') return '#faad14';
-    if (props.severity === 'success') return '#52c41a';
-    return '#1890ff';
+    if (props.severity === 'danger') return theme.colors.error;
+    if (props.severity === 'warning') return theme.colors.warning;
+    if (props.severity === 'success') return theme.colors.success;
+    return theme.colors.info;
   }};
   transition: all 0.3s;
   opacity: ${props => props.confidence > 0.8 ? 1 : 0.7};
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: ${theme.typography.fontFamily};
   
   &:hover {
     background: rgba(255, 255, 255, 0.1);
@@ -73,11 +75,11 @@ const SignalItem = styled.div`
 `;
 
 const DivergenceAlert = styled.div`
-  background: linear-gradient(135deg, rgba(255, 77, 79, 0.2) 0%, rgba(255, 152, 0, 0.2) 100%);
-  border: 2px solid #ff4d4f;
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 16px;
+  background: ${theme.gradients.orange};
+  border: 2px solid ${theme.colors.error};
+  padding: ${theme.spacing.lg};
+  border-radius: ${theme.borderRadius.md};
+  margin-bottom: ${theme.spacing.lg};
   animation: pulse 2s ease-in-out infinite;
   
   @keyframes pulse {
@@ -89,9 +91,9 @@ const DivergenceAlert = styled.div`
 const AIInsightBox = styled.div`
   background: rgba(138, 43, 226, 0.15);
   border: 1px solid rgba(138, 43, 226, 0.3);
-  padding: 16px;
-  margin-top: 16px;
-  border-radius: 8px;
+  padding: ${theme.spacing.lg};
+  margin-top: ${theme.spacing.lg};
+  border-radius: ${theme.borderRadius.sm};
 `;
 
 const WhaleWatch = ({ coinData, coinId, aiSentiment }) => {

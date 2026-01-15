@@ -1,8 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Row, Col, Spin, Alert, Typography, Tag } from 'antd';
+import styled from 'styled-components';
 import { analyzeSentiment, isAIEnabled } from '../services/aiService';
+import { theme } from '../styles/theme';
+import { FlexContainer, Text, LoadingContainer, InfoBox, GradientCard, IconWrapper } from '../styles/components';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Paragraph } = Typography;
+
+// Styled components specific to AISentiment
+const SignalLabel = styled(Text)`
+  text-transform: uppercase;
+  font-size: ${theme.typography.sizes.sm};
+`;
+
+const MetricValue = styled.div`
+  color: ${props => props.color || theme.colors.primary};
+  font-weight: ${theme.typography.weights.bold};
+  font-size: ${theme.typography.sizes.md};
+`;
 
 const AISentiment = ({ coinDetails, visible, onSentimentUpdate }) => {
   const [sentiment, setSentiment] = useState(null);
@@ -117,10 +132,18 @@ const AISentiment = ({ coinDetails, visible, onSentimentUpdate }) => {
 
   if (analyzingSentiment) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px', background: '#1a1a1a', borderRadius: '16px' }}>
+      <LoadingContainer padding={theme.spacing['3xl']} bg={theme.colors.bgSecondary}>
         <Spin size="large" />
-        <p style={{ marginTop: 16, fontSize: '16px', fontFamily: 'Inter', fontWeight: 600, color: '#fff' }}>Analyzing...</p>
-      </div>
+        <Text 
+          block 
+          size="xl" 
+          weight="semibold" 
+          color="primary" 
+          margin={`${theme.spacing.lg} 0 0 0`}
+        >
+          Analyzing...
+        </Text>
+      </LoadingContainer>
     );
   }
 
@@ -138,76 +161,62 @@ const AISentiment = ({ coinDetails, visible, onSentimentUpdate }) => {
   const sentimentScore = sentiment?.sentiment || 0;
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: theme.spacing.xl }}>
       {/* Main Signal Card */}
       <Card 
         className="glassmorphic-card" 
         style={{ 
           borderLeft: `5px solid ${getSentimentColor(sentimentScore)}`,
-          borderRadius: '16px',
-          marginBottom: '20px'
+          borderRadius: theme.borderRadius.lg,
+          marginBottom: theme.spacing.xl
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-          <Text strong style={{ color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', fontSize: '10px' }}>
+        <FlexContainer justify="space-between" style={{ marginBottom: theme.spacing.lg }}>
+          <SignalLabel color="faint">
             Velaris Intelligence Signal
-          </Text>
+          </SignalLabel>
           {getVerdictTag(sentiment.verdict)}
-        </div>
+        </FlexContainer>
 
-        <Title level={3} style={{ color: '#fff', margin: '0 0 10px 0' }}>
+        <Title level={3} style={{ color: theme.colors.primary, margin: `0 0 ${theme.spacing.md} 0` }}>
           {sentiment.primary_driver} detected
         </Title>
         
-        <Paragraph style={{ color: '#d9d9d9', fontSize: '14px' }}>
+        <Paragraph style={{ color: '#d9d9d9', fontSize: theme.typography.sizes.lg }}>
           {sentiment.logic}
         </Paragraph>
 
-        <div style={{ marginTop: '20px', padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+        <InfoBox bg="rgba(255,255,255,0.05)" padding={theme.spacing.md}>
           <Row gutter={16}>
             <Col span={12}>
-              <Text type="secondary" style={{ fontSize: '11px' }}>RISK LEVEL</Text>
-              <div style={{ color: getRiskColor(sentiment.risk_level), fontWeight: 'bold' }}>
+              <Text size="base" color="secondary" block uppercase>RISK LEVEL</Text>
+              <MetricValue color={getRiskColor(sentiment.risk_level)}>
                 {sentiment.risk_level?.toUpperCase()}
-              </div>
+              </MetricValue>
             </Col>
             <Col span={12}>
-              <Text type="secondary" style={{ fontSize: '11px' }}>CONFIDENCE</Text>
-              <div style={{ color: '#fff' }}>{((sentiment.confidence || 0.5) * 100).toFixed(0)}%</div>
+              <Text size="base" color="secondary" block uppercase>CONFIDENCE</Text>
+              <MetricValue>{((sentiment.confidence || 0.5) * 100).toFixed(0)}%</MetricValue>
             </Col>
           </Row>
-        </div>
+        </InfoBox>
       </Card>
 
       {/* Price Target Card */}
       {sentiment.price_target && (
-        <Card style={{ 
-          background: 'linear-gradient(135deg, #141e30 0%, #243b55 100%)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: '16px',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ 
-              width: '48px', 
-              height: '48px', 
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '24px'
-            }}>
+        <GradientCard gradient="dark" shadow="md">
+          <FlexContainer align="center" gap={theme.spacing.md}>
+            <IconWrapper gradient="purple" size="48px" fontSize="24px">
               🎯
-            </div>
+            </IconWrapper>
             <div style={{ flex: 1 }}>
-              <Text style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', display: 'block' }}>Sentiment-Based Target</Text>
-              <Text strong style={{ fontSize: '18px', color: '#fff', fontFamily: 'Inter', fontWeight: 700 }}>
+              <Text size="md" color="muted" block>Sentiment-Based Target</Text>
+              <Text size="2xl" color="primary" weight="bold">
                 {sentiment.price_target}
               </Text>
             </div>
-          </div>
-        </Card>
+          </FlexContainer>
+        </GradientCard>
       )}
     </div>
   );

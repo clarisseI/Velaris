@@ -32,6 +32,16 @@ body {
   overflow: hidden;
 }
 
+/* Hide scrollbars but keep scroll functionality */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 /* Force card backgrounds to show */
 .ant-card {
   background: transparent !important;
@@ -486,4 +496,5 @@ p, span, div {
   .home-title {
     font-size: 1.1rem !important;
   }
+  
 }

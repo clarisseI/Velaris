@@ -3,6 +3,15 @@ import { Card, Input, Button, Avatar, Typography, Spin, Badge, Tooltip, Modal } 
 import { SendOutlined, RobotOutlined, CloseOutlined, MessageOutlined, ExpandOutlined } from '@ant-design/icons';
 import { useGetCryptosQuery } from '../services/coinGeckoApi';
 import { askCryptoAssistant, isAIEnabled } from '../services/aiService';
+import { 
+  ChatHeader, 
+  MessageContainer, 
+  MessageWrapper, 
+  MessageBubble,
+  FloatingButton,
+  FlexContainer,
+} from '../styles/components';
+import { theme } from '../styles/theme';
 
 const { Text } = Typography;
 
@@ -69,13 +78,18 @@ const CryptoAI = () => {
 
   if (!isAIEnabled()) {
     return (
-      <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1000 }}>
+      <FloatingButton>
         <Tooltip title="Add OpenAI API key to enable">
-          <Button type="primary" shape="circle" size="large" icon={<RobotOutlined />}
-            style={{ width: 60, height: 60, fontSize: 24, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', opacity: 0.5 }}
-            disabled />
+          <Button 
+            type="primary" 
+            shape="circle" 
+            size="large" 
+            icon={<RobotOutlined />}
+            style={{ width: 60, height: 60, fontSize: 24, boxShadow: theme.shadows.md, opacity: 0.5 }}
+            disabled 
+          />
         </Tooltip>
-      </div>
+      </FloatingButton>
     );
   }
 
@@ -91,119 +105,119 @@ const CryptoAI = () => {
         bodyStyle={{ padding: 0, height: '80vh', display: 'flex', flexDirection: 'column' }}
         closable={false}
       >
-        <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', borderRadius: '20px 20px 0 0', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Avatar icon={<RobotOutlined />} size={40} style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', color: '#fff' }} />
+        <ChatHeader>
+          <FlexContainer align="center" gap={theme.spacing.md}>
+            <Avatar icon={<RobotOutlined />} size={40} style={{ background: theme.gradients.blue, color: theme.colors.primary }} />
             <div>
-              <Text strong style={{ color: '#fff', fontSize: 16 }}>Crypto AI</Text><br />
-              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12 }}> ● Online</Text>
+              <Text strong style={{ color: theme.colors.primary, fontSize: theme.typography.sizes.xl }}>Crypto AI</Text><br />
+              <Text style={{ color: theme.colors.muted, fontSize: theme.typography.sizes.sm }}> ● Online</Text>
             </div>
-          </div>
+          </FlexContainer>
           <Button 
             type="text" 
             icon={<CloseOutlined />} 
             onClick={() => setIsExpanded(false)} 
-            style={{ color: '#fff', fontSize: 18 }}
+            style={{ color: theme.colors.primary, fontSize: theme.typography.sizes['2xl'] }}
           />
-        </div>
+        </ChatHeader>
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: 24, backgroundColor: '#f5f5f5' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: theme.spacing.xl, backgroundColor: '#f5f5f5' }}>
           {messages.map((message, index) => (
-            <div key={index} style={{ display: 'flex', justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start', marginBottom: 16 }}>
-              <div style={{ display: 'flex', gap: 12, maxWidth: '75%', flexDirection: message.role === 'user' ? 'row-reverse' : 'row', alignItems: 'flex-end' }}>
+            <MessageContainer key={index} isUser={message.role === 'user'}>
+              <MessageWrapper isUser={message.role === 'user'}>
                 {message.role === 'assistant' && (
-                  <Avatar icon={<RobotOutlined />} size={40} style={{ backgroundColor: '#2c3e50', flexShrink: 0 }} />
+                  <Avatar icon={<RobotOutlined />} size={40} style={{ backgroundColor: theme.colors.bgSecondary, flexShrink: 0 }} />
                 )}
-                <div style={{ padding: '14px 18px', borderRadius: message.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px', backgroundColor: message.role === 'user' ? '#1a1a2e' : '#fff', color: message.role === 'user' ? '#fff' : '#1a1a1a', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: 15, lineHeight: 1.6 }}>
+                <MessageBubble isUser={message.role === 'user'}>
                   {message.content}
-                </div>
-              </div>
-            </div>
+                </MessageBubble>
+              </MessageWrapper>
+            </MessageContainer>
           ))}
           {loading && (
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-              <Avatar icon={<RobotOutlined />} size={40} style={{ backgroundColor: '#1a1a2e' }} />
-              <div style={{ padding: '14px 18px', backgroundColor: '#fff', borderRadius: '16px 16px 16px 4px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <FlexContainer gap={theme.spacing.md} align="center">
+              <Avatar icon={<RobotOutlined />} size={40} style={{ backgroundColor: theme.colors.bgPrimary }} />
+              <div style={{ padding: '14px 18px', backgroundColor: theme.colors.primary, borderRadius: theme.borderRadius.xl, boxShadow: theme.shadows.sm }}>
                 <Spin size="small" />
               </div>
-            </div>
+            </FlexContainer>
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        <div style={{ padding: 16, backgroundColor: '#fff', borderTop: '1px solid #e8e8e8' }}>
-          <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ padding: theme.spacing.lg, backgroundColor: theme.colors.primary, borderTop: `1px solid ${theme.colors.borderLight}` }}>
+          <FlexContainer gap={theme.spacing.md}>
             <Input.TextArea value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={handleKeyPress}
-              placeholder="Ask me anything..." autoSize={{ minRows: 1, maxRows: 4 }} disabled={loading} style={{ borderRadius: 20, fontSize: 15 }} />
+              placeholder="Ask me anything..." autoSize={{ minRows: 1, maxRows: 4 }} disabled={loading} style={{ borderRadius: theme.borderRadius.xl, fontSize: theme.typography.sizes.lg }} />
             <Button type="primary" shape="circle" icon={<SendOutlined />} onClick={sendMessage} disabled={loading || !input.trim()}
-              style={{ background: '#1a1a2e', border: 'none', width: 48, height: 48 }} />
-          </div>
+              style={{ background: theme.colors.bgPrimary, border: 'none', width: 48, height: 48 }} />
+          </FlexContainer>
         </div>
       </Modal>
 
-      <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
+      <FloatingButton>
         {isOpen && !isExpanded && (
-          <Card style={{ width: 380, height: 550, borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'slideUp 0.3s ease-out' }}
+          <Card style={{ width: 380, height: 550, borderRadius: theme.borderRadius.xl, boxShadow: theme.shadows.xl, display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'slideUp 0.3s ease-out' }}
             bodyStyle={{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
             
-            <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', borderRadius: '20px 20px 0 0', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Avatar icon={<RobotOutlined />} size={40} style={{ backgroundColor: '#1a1a2e', color: '#fff' }} />
+            <ChatHeader>
+              <FlexContainer align="center" gap={theme.spacing.md}>
+                <Avatar icon={<RobotOutlined />} size={40} style={{ backgroundColor: theme.colors.bgPrimary, color: theme.colors.primary }} />
                 <div>
-                  <Text strong style={{ color: '#fff', fontSize: 16 }}>Crypto AI</Text><br />
-                  <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12 }}>● Online</Text>
+                  <Text strong style={{ color: theme.colors.primary, fontSize: theme.typography.sizes.xl }}>Crypto AI</Text><br />
+                  <Text style={{ color: theme.colors.muted, fontSize: theme.typography.sizes.sm }}>● Online</Text>
                 </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              </FlexContainer>
+              <FlexContainer gap={theme.spacing.sm}>
                 <Tooltip title="Expand">
-                  <Button type="text" icon={<ExpandOutlined />} onClick={() => setIsExpanded(true)} style={{ color: '#fff' }} />
+                  <Button type="text" icon={<ExpandOutlined />} onClick={() => setIsExpanded(true)} style={{ color: theme.colors.primary }} />
                 </Tooltip>
-                <Button type="text" icon={<CloseOutlined />} onClick={() => setIsOpen(false)} style={{ color: '#fff' }} />
-              </div>
-            </div>
+                <Button type="text" icon={<CloseOutlined />} onClick={() => setIsOpen(false)} style={{ color: theme.colors.primary }} />
+              </FlexContainer>
+            </ChatHeader>
 
-            <div style={{ flex: 1, overflowY: 'auto', padding: 16, backgroundColor: '#f5f5f5' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: theme.spacing.lg, backgroundColor: '#f5f5f5' }}>
               {messages.map((message, index) => (
-                <div key={index} style={{ display: 'flex', justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
-                  <div style={{ display: 'flex', gap: 8, maxWidth: '80%', flexDirection: message.role === 'user' ? 'row-reverse' : 'row', alignItems: 'flex-end' }}>
+                <MessageContainer key={index} isUser={message.role === 'user'}>
+                  <MessageWrapper isUser={message.role === 'user'}>
                     {message.role === 'assistant' && (
-                      <Avatar icon={<RobotOutlined />} size={32} style={{ backgroundColor: '#1a1a2e', flexShrink: 0 }} />
+                      <Avatar icon={<RobotOutlined />} size={32} style={{ backgroundColor: theme.colors.bgPrimary, flexShrink: 0 }} />
                     )}
-                    <div style={{ padding: '10px 14px', borderRadius: message.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px', backgroundColor: message.role === 'user' ? '#1a1a2e' : '#fff', color: message.role === 'user' ? '#fff' : '#1a1a1a', boxShadow: '0 2px 4px rgba(0,0,0,0.08)', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: 14, lineHeight: 1.5 }}>
+                    <MessageBubble isUser={message.role === 'user'} style={{ fontSize: theme.typography.sizes.md }}>
                       {message.content}
-                    </div>
-                  </div>
-                </div>
+                    </MessageBubble>
+                  </MessageWrapper>
+                </MessageContainer>
               ))}
               {loading && (
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <Avatar icon={<RobotOutlined />} size={32} style={{ backgroundColor: '#1a1a2e' }} />
-                  <div style={{ padding: '10px 14px', backgroundColor: '#fff', borderRadius: '16px 16px 16px 4px', boxShadow: '0 2px 4px rgba(0,0,0,0.08)' }}>
+                <FlexContainer gap={theme.spacing.sm} align="center">
+                  <Avatar icon={<RobotOutlined />} size={32} style={{ backgroundColor: theme.colors.bgPrimary }} />
+                  <div style={{ padding: '10px 14px', backgroundColor: theme.colors.primary, borderRadius: theme.borderRadius.xl, boxShadow: theme.shadows.sm }}>
                     <Spin size="small" />
                   </div>
-                </div>
+                </FlexContainer>
               )}
               <div ref={messagesEndRef} />
             </div>
 
             {messages.length === 1 && (
-              <div style={{ padding: '8px 16px', backgroundColor: '#fff', borderTop: '1px solid #f0f0f0' }}>
-                <Text type="secondary" style={{ fontSize: 12 }}>Try asking:</Text>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+              <div style={{ padding: `${theme.spacing.sm} ${theme.spacing.lg}`, backgroundColor: theme.colors.primary, borderTop: `1px solid ${theme.colors.borderLight}` }}>
+                <Text type="secondary" style={{ fontSize: theme.typography.sizes.sm }}>Try asking:</Text>
+                <FlexContainer wrap="wrap" gap={theme.spacing.xs} style={{ marginTop: theme.spacing.xs }}>
                   {quickQuestions.map((q, i) => (
-                    <Button key={i} size="small" onClick={() => setInput(q)} style={{ fontSize: 11, borderRadius: 12 }}>{q}</Button>
+                    <Button key={i} size="small" onClick={() => setInput(q)} style={{ fontSize: theme.typography.sizes.xs, borderRadius: theme.borderRadius.md }}>{q}</Button>
                   ))}
-                </div>
+                </FlexContainer>
               </div>
             )}
 
-            <div style={{ padding: 12, backgroundColor: '#fff', borderTop: '1px solid #f0f0f0' }}>
-              <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ padding: theme.spacing.md, backgroundColor: theme.colors.primary, borderTop: `1px solid ${theme.colors.borderLight}` }}>
+              <FlexContainer gap={theme.spacing.sm}>
                 <Input.TextArea value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={handleKeyPress}
-                  placeholder="Ask me anything..." autoSize={{ minRows: 1, maxRows: 3 }} disabled={loading} style={{ borderRadius: 20 }} />
+                  placeholder="Ask me anything..." autoSize={{ minRows: 1, maxRows: 3 }} disabled={loading} style={{ borderRadius: theme.borderRadius.xl }} />
                 <Button type="primary" shape="circle" icon={<SendOutlined />} onClick={sendMessage} disabled={loading || !input.trim()}
-                  style={{ background: '#1a1a2e', border: 'none' }} />
-              </div>
+                  style={{ background: theme.colors.bgPrimary, border: 'none' }} />
+              </FlexContainer>
             </div>
           </Card>
         )}
@@ -213,11 +227,11 @@ const CryptoAI = () => {
             <Badge count={messages.length > 1 ? messages.length - 1 : 0} offset={[-5, 5]}>
               <Button type="primary" shape="circle" size="large" icon={isOpen ? <CloseOutlined /> : <MessageOutlined />}
                 onClick={() => setIsOpen(!isOpen)}
-                style={{ width: 64, height: 64, fontSize: 28, background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', border: 'none', boxShadow: '0 4px 16px rgba(26, 26, 46, 0.4)', transition: 'all 0.3s ease' }} />
+                style={{ width: 64, height: 64, fontSize: 28, background: theme.gradients.blue, border: 'none', boxShadow: theme.shadows.lg, transition: 'all 0.3s ease' }} />
             </Badge>
           </Tooltip>
         )}
-      </div>
+      </FloatingButton>
 
       <style>{`
         @keyframes slideUp {

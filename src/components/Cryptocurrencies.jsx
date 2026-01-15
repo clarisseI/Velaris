@@ -42,7 +42,7 @@ const Cryptocurrencies = ({ simplified, limit = 100 }) => {
     );
   }
   
-  console.log("Cryptos data:", cryptosList);
+ 
 
   const handleCoinClick = (coinId) => {
     setSelectedCoin(coinId);
@@ -52,7 +52,15 @@ const Cryptocurrencies = ({ simplified, limit = 100 }) => {
   return (
     <>
       {!simplified && (
-        <div className="search-crypto" style={{ marginBottom: 20 }}>
+        <div className="search-crypto" style={{ 
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          background: '#0a0a0a',
+          paddingTop: 10,
+          paddingBottom: 20,
+          marginBottom: 0
+        }}>
           <Input
             placeholder="Search for Cryptocurrency"
             onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
