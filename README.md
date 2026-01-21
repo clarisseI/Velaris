@@ -23,8 +23,6 @@
 |------|--------------|-------------|
 | ![Home](/public/iphone-15-mockup.png) | ![Coin Details](/public/ipad-mockup.png) | ![AI Assistant](/public/FloatingMockup.png) |
 
-> _Add your screenshots to the `public/` folder and update the filenames above._
-
 ---
 
 ## 🛠️ Tech Stack
