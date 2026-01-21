@@ -1,14 +1,27 @@
 import React, { useState } from 'react';
 import { Modal, Card, Row, Col, Statistic, Tag, Typography, Tabs, Slider, Progress } from 'antd';
-import { RiseOutlined, FallOutlined, ThunderboltOutlined, RocketOutlined, TrophyOutlined, LineChartOutlined, FireOutlined } from '@ant-design/icons';
+import { RiseOutlined, FallOutlined, RocketOutlined, GlobalOutlined,TrophyOutlined, LineChartOutlined, FireOutlined } from '@ant-design/icons';
 import millify from 'millify';
 import { useGetCryptoDetailsQuery } from '../services/coinGeckoApi';
 import WhaleWatch from './WhaleWatch';
 import AISentiment from './AISentiment';
-import { LoadingContainer, FlexContainer, Text as StyledText} from '../styles/components';
-import { theme } from '../styles/theme';
+import { LoadingContainer, Text as StyledText} from '../styles/components';
 
 const { Title, Text } = Typography;
+
+const PerformanceMetric = ({ label, value }) => (
+  <div style={{ textAlign: 'center', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
+    <Text style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase' }}>{label}</Text>
+    <Text style={{ 
+      fontSize: '18px', 
+      fontWeight: '800', 
+      color: value >= 0 ? '#10b981' : '#ef4444',
+      textShadow: value >= 0 ? '0 0 10px rgba(16, 185, 129, 0.2)' : '0 0 10px rgba(239, 68, 68, 0.2)'
+    }}>
+      {value > 0 ? '+' : ''}{value?.toFixed(2)}%
+    </Text>
+  </div>
+);
 
 const CoinDetails = ({ coinId, visible, onClose }) => {
   const { data: coinDetails, isFetching } = useGetCryptoDetailsQuery(coinId, { skip: !visible });
@@ -17,10 +30,10 @@ const CoinDetails = ({ coinId, visible, onClose }) => {
 
   if (isFetching) {
     return (
-      <Modal open={visible} onCancel={onClose} footer={null} width={1200} centered>
-        <LoadingContainer padding={theme.spacing['3xl']}>
+      <Modal open={visible} onCancel={onClose} footer={null} centered className="dark-modal">
+        <LoadingContainer>
           <div className="spinner" />
-          <StyledText size="lg" color="primary" margin="20px 0 0 0">Loading coin details...</StyledText>
+          <StyledText>Analyzing Market Data...</StyledText>
         </LoadingContainer>
       </Modal>
     );
@@ -36,270 +49,137 @@ const CoinDetails = ({ coinId, visible, onClose }) => {
       open={visible}
       onCancel={onClose}
       footer={null}
-      width={1100}
-      style={{ top: 10 }}
-      bodyStyle={{ padding: '0', height: 'calc(100vh - 40px)', overflowY: 'auto', background: theme.gradients.lightBlue }}
-      closeIcon={<span style={{ color: theme.colors.primary, fontSize: theme.typography.sizes['2xl'], fontWeight: theme.typography.weights.bold }}>×</span>}
+      width={1000}
+      centered
+      className="dark-modal"
+      bodyStyle={{ 
+        padding: '0', 
+        background: 'var(--bgPrimary)',
+        maxHeight: '90vh',
+        overflowY: 'auto'
+      }}
     >
-      {/* Header Section */}
+      {/* HEADER: Deep Blue Glow */}
       <div style={{ 
-        background: theme.gradients.purple,
-        padding: `${theme.spacing.lg} ${theme.spacing.xl}`,
+        padding: '40px 30px',
+        background: 'radial-gradient(circle at top left, rgba(37, 99, 235, 0.2), transparent)',
+        borderBottom: '1px solid var(--border-light)',
         display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        gap: theme.spacing.lg,
-        boxShadow: theme.shadows.md
+        flexWrap: 'wrap',
+        gap: '20px'
       }}>
-        <img 
-          src={coinDetails.image?.large} 
-          alt={coinDetails.name} 
-          style={{ width: 50, height: 50, borderRadius: '50%', border: `3px solid ${theme.colors.primary}`, boxShadow: theme.shadows.sm }} 
-        />
-        <div style={{ flex: 1 }}>
-          <Title level={3} style={{ margin: 0, color: theme.colors.primary, fontFamily: theme.typography.fontFamily, fontWeight: theme.typography.weights.bold, fontSize: theme.typography.sizes['2xl'] }}>
-            {coinDetails.name}
-          </Title>
-          <FlexContainer align="center" gap={theme.spacing.sm} style={{ marginTop: '4px' }}>
-            <Text style={{ color: theme.colors.muted, fontSize: theme.typography.sizes.md, fontFamily: theme.typography.fontFamily, fontWeight: theme.typography.weights.semibold }}>
-              {coinDetails.symbol?.toUpperCase()}
-            </Text>
-            <Tag color="gold" icon={<TrophyOutlined />} style={{ fontSize: theme.typography.sizes.xs, fontWeight: theme.typography.weights.semibold, padding: '2px 8px', margin: 0 }}>
-              #{coinDetails.market_cap_rank}
-            </Tag>
-          </FlexContainer>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <img src={coinDetails.image?.large} alt={coinDetails.name} style={{ width: 60, height: 60, filter: 'drop-shadow(0 0 10px rgba(37, 99, 235, 0.5))' }} />
+          <div>
+            <Title level={2} style={{ margin: 0, color: 'var(--text-primary)', letterSpacing: '-1px' }}>
+              {coinDetails.name} <span style={{ color: 'var(--text-secondary)', fontWeight: '300', fontSize: '20px' }}>{coinDetails.symbol?.toUpperCase()}</span>
+            </Title>
+            <Tag color="blue" icon={<TrophyOutlined />} style={{ borderRadius: '6px', marginTop: '8px' }}>Rank #{coinDetails.market_cap_rank}</Tag>
+          </div>
         </div>
 
         <div style={{ textAlign: 'right' }}>
-          <Title level={2} style={{ margin: 0, color: theme.colors.primary, fontFamily: theme.typography.fontFamily, fontWeight: theme.typography.weights.bold, fontSize: theme.typography.sizes['3xl'] }}>
+          <Text style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '12px', fontWeight: '600' }}>CURRENT PRICE</Text>
+          <Title level={2} style={{ margin: 0, background: 'var(--gradient-accent)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             ${marketData?.current_price?.usd?.toLocaleString()}
           </Title>
-          <Tag 
-            color={priceChange24h >= 0 ? 'success' : 'error'}
-            style={{ fontSize: theme.typography.sizes.sm, padding: '4px 10px', marginTop: '4px', fontWeight: theme.typography.weights.bold }}
-            icon={priceChange24h >= 0 ? <RiseOutlined /> : <FallOutlined />}
-          >
-            {priceChange24h?.toFixed(2)}% (24h)
-          </Tag>
+          <Text style={{ color: priceChange24h >= 0 ? '#10b981' : '#ef4444', fontWeight: '700' }}>
+            {priceChange24h >= 0 ? <RiseOutlined /> : <FallOutlined />} {priceChange24h?.toFixed(2)}%
+          </Text>
         </div>
       </div>
 
-      <div style={{ padding: `${theme.spacing.md} ${theme.spacing.lg}` }}>
-        <Tabs defaultActiveKey="1" size="small">
-          <Tabs.TabPane tab={<span style={{ fontSize: theme.typography.sizes.sm, fontWeight: theme.typography.weights.semibold }}>Overview</span>} key="1">
-            {/* Quick Stats */}
-            <Row gutter={[12, 12]} style={{ marginBottom: theme.spacing.md }}>
-              <Col xs={12} sm={6}>
-                <Card size="small" bodyStyle={{ padding: theme.spacing.sm }} style={{ textAlign: 'center', borderRadius: theme.borderRadius.md, background: theme.gradients.purple, border: 'none' }}>
-                  <Statistic
-                    title={<span style={{ color: theme.colors.muted, fontSize: theme.typography.sizes.xs }}>Market Cap</span>}
-                    value={marketData?.market_cap?.usd}
-                    formatter={(value) => `$${millify(value)}`}
-                    valueStyle={{ fontSize: theme.typography.sizes.xl, fontWeight: theme.typography.weights.bold, color: theme.colors.primary, fontFamily: theme.typography.fontFamily }}
-                  />
+      <div style={{ padding: '30px' }}>
+        <Tabs defaultActiveKey="1" className="custom-tabs">
+          <Tabs.TabPane tab="Overview" key="1">
+            {/* GRID STATS */}
+            <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+              {[
+                { title: 'Market Cap', value: marketData?.market_cap?.usd, icon: <GlobalOutlined />, color: 'var(--accent-primary)' },
+                { title: '24h Volume', value: marketData?.total_volume?.usd, icon: <LineChartOutlined />, color: 'var(--accent-secondary)' },
+                { title: 'Circulating Supply', value: marketData?.circulating_supply, icon: <FireOutlined />, color: 'var(--accent-tertiary)' }
+              ].map((item, idx) => (
+                <Col xs={24} md={8} key={idx}>
+                  <Card className="glassmorphic-card" bodyStyle={{ padding: '20px' }}>
+                    <Statistic 
+                      title={<Text style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{item.icon} {item.title}</Text>}
+                      value={item.value}
+                      formatter={val => `$${millify(val)}`}
+                      valueStyle={{ color: 'var(--text-primary)', fontWeight: '800' }}
+                    />
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+
+            {/* PERFORMANCE & SUPPLY */}
+            <Row gutter={[16, 16]}>
+              <Col xs={24} lg={12}>
+                <Card className="glassmorphic-card" title={<span style={{color: '#fff'}}>Price Performance</span>}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <PerformanceMetric label="1h" value={marketData?.price_change_percentage_1h} />
+                    <PerformanceMetric label="24h" value={marketData?.price_change_percentage_24h} />
+                    <PerformanceMetric label="7d" value={marketData?.price_change_percentage_7d} />
+                    <PerformanceMetric label="30d" value={marketData?.price_change_percentage_30d} />
+                  </div>
                 </Card>
               </Col>
-              <Col xs={12} sm={6}>
-                <Card size="small" bodyStyle={{ padding: theme.spacing.sm }} style={{ textAlign: 'center', borderRadius: theme.borderRadius.md, background: theme.gradients.pink, border: 'none' }}>
-                  <Statistic
-                    title={<span style={{ color: theme.colors.muted, fontSize: theme.typography.sizes.xs }}>24h Volume</span>}
-                    value={marketData?.total_volume?.usd}
-                    formatter={(value) => `$${millify(value)}`}
-                    valueStyle={{ fontSize: theme.typography.sizes.xl, fontWeight: theme.typography.weights.bold, color: theme.colors.primary, fontFamily: theme.typography.fontFamily }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={12} sm={6}>
-                <Card size="small" bodyStyle={{ padding: theme.spacing.sm }} style={{ textAlign: 'center', borderRadius: theme.borderRadius.md, background: theme.gradients.cyan, border: 'none' }}>
-                  <Statistic
-                    title={<span style={{ color: theme.colors.muted, fontSize: theme.typography.sizes.xs }}>24h High</span>}
-                    value={marketData?.high_24h?.usd}
-                    prefix="$"
-                    precision={2}
-                    valueStyle={{ fontSize: theme.typography.sizes.xl, fontWeight: theme.typography.weights.bold, color: theme.colors.primary, fontFamily: theme.typography.fontFamily }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={12} sm={6}>
-                <Card size="small" bodyStyle={{ padding: theme.spacing.sm }} style={{ textAlign: 'center', borderRadius: theme.borderRadius.md, background: theme.gradients.yellow, border: 'none' }}>
-                  <Statistic
-                    title={<span style={{ color: theme.colors.muted, fontSize: theme.typography.sizes.xs }}>24h Low</span>}
-                    value={marketData?.low_24h?.usd}
-                    prefix="$"
-                    precision={2}
-                    valueStyle={{ fontSize: theme.typography.sizes.xl, fontWeight: theme.typography.weights.bold, color: theme.colors.primary, fontFamily: theme.typography.fontFamily }}
-                  />
+
+              <Col xs={24} lg={12}>
+                <Card className="glassmorphic-card" title={<span style={{color: '#fff'}}>Supply Integrity</span>}>
+                  <Text style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>CIRCULATING VS MAX SUPPLY</Text>
+                  <div style={{ margin: '20px 0' }}>
+                    <Progress 
+                      percent={Number((marketData?.circulating_supply / (marketData?.max_supply || marketData?.total_supply) * 100).toFixed(2))} 
+                      strokeColor={{ '0%': 'var(--accent-primary)', '100%': 'var(--accent-tertiary)' }}
+                      trailColor="rgba(255,255,255,0.05)"
+                      strokeWidth={10}
+                    />
+                  </div>
+                  <Row justify="space-between">
+                    <Col><Text style={{color: 'var(--text-secondary)'}}>Max: {millify(marketData?.max_supply || 0)}</Text></Col>
+                    <Col><Text style={{color: 'var(--text-secondary)'}}>Circ: {millify(marketData?.circulating_supply || 0)}</Text></Col>
+                  </Row>
                 </Card>
               </Col>
             </Row>
 
-            {/* Price Changes */}
-            <Card bodyStyle={{ padding: theme.spacing.md }} title={<span style={{ fontSize: theme.typography.sizes.sm, fontWeight: theme.typography.weights.bold }}><LineChartOutlined /> Price Performance</span>} style={{ marginBottom: theme.spacing.md, borderRadius: theme.borderRadius.md, background: theme.gradients.orange, border: 'none' }}>
-              <Row gutter={[8, 8]}>
-                <Col span={8}>
-                  <div style={{ textAlign: 'center', padding: theme.spacing.sm, background: theme.colors.cardBg, borderRadius: theme.borderRadius.sm }}>
-                    <Text type="secondary" style={{ fontSize: theme.typography.sizes.xs, fontWeight: theme.typography.weights.semibold }}>1H</Text>
-                    <div style={{ marginTop: '4px' }}>
-                      <Text 
-                        strong 
-                        style={{ 
-                          fontSize: theme.typography.sizes['2xl'],
-                          fontWeight: theme.typography.weights.bold,
-                          fontFamily: theme.typography.fontFamily,
-                          color: (marketData?.price_change_percentage_1h || 0) >= 0 ? theme.colors.success : theme.colors.error
-                        }}
-                      >
-                        {(marketData?.price_change_percentage_1h || 0) >= 0 ? '+' : ''}
-                        {marketData?.price_change_percentage_1h?.toFixed(2) || '0.00'}%
-                      </Text>
-                    </div>
-                  </div>
-                </Col>
-                <Col span={8}>
-                  <div style={{ textAlign: 'center', padding: '10px', background: 'rgba(82, 138, 177, 0.7)', borderRadius: '8px' }}>
-                    <Text type="secondary" style={{ fontSize: '11px', fontWeight: 600 }}>7D</Text>
-                    <div style={{ marginTop: '4px' }}>
-                      <Text 
-                        strong 
-                        style={{ 
-                          fontSize: '18px',
-                          fontWeight: 800,
-                          fontFamily: 'Inter',
-                          color: (marketData?.price_change_percentage_7d || 0) >= 0 ? '#52c41a' : '#f5222d'
-                        }}
-                      >
-                        {(marketData?.price_change_percentage_7d || 0) >= 0 ? '+' : ''}
-                        {marketData?.price_change_percentage_7d?.toFixed(2) || '0.00'}%
-                      </Text>
-                    </div>
-                  </div>
-                </Col>
-                <Col span={8}>
-                  <div style={{ textAlign: 'center', padding: '10px', background: 'rgba(141, 173, 224, 0.7)', borderRadius: '8px' }}>
-                    <Text type="secondary" style={{ fontSize: '11px', fontWeight: 600 }}>30D</Text>
-                    <div style={{ marginTop: '4px' }}>
-                      <Text 
-                        strong 
-                        style={{ 
-                          fontSize: '18px',
-                          fontWeight: 800,
-                          fontFamily: 'Inter',
-                          color: (marketData?.price_change_percentage_30d || 0) >= 0 ? '#52c41a' : '#f5222d'
-                        }}
-                      >
-                        {(marketData?.price_change_percentage_30d || 0) >= 0 ? '+' : ''}
-                        {marketData?.price_change_percentage_30d?.toFixed(2) || '0.00'}%
-                      </Text>
-                    </div>
-                  </div>
-                </Col>
-              </Row>
-            </Card>
-
-            {/* Supply Info */}
-            <Card bodyStyle={{ padding: '12px' }} title={<span style={{ fontSize: '13px', fontWeight: 700 }}><FireOutlined /> Supply</span>} style={{ marginBottom: '12px', borderRadius: '12px', background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', border: 'none' }}>
-              <Row gutter={[8, 8]}>
-                <Col span={8}>
-                  <Text type="secondary" style={{ fontSize: '10px', fontWeight: 600 }}>Circulating</Text>
-                  <div><Text strong style={{ fontSize: '14px', fontFamily: 'Inter', fontWeight: 700 }}>{millify(marketData?.circulating_supply || 0)}</Text></div>
-                </Col>
-                <Col span={8}>
-                  <Text type="secondary" style={{ fontSize: '10px', fontWeight: 600 }}>Total</Text>
-                  <div><Text strong style={{ fontSize: '14px', fontFamily: 'Inter', fontWeight: 700 }}>{marketData?.total_supply ? millify(marketData.total_supply) : '∞'}</Text></div>
-                </Col>
-                <Col span={8}>
-                  <Text type="secondary" style={{ fontSize: '10px', fontWeight: 600 }}>Max</Text>
-                  <div><Text strong style={{ fontSize: '14px', fontFamily: 'Inter', fontWeight: 700 }}>{marketData?.max_supply ? millify(marketData.max_supply) : '∞'}</Text></div>
-                </Col>
-              </Row>
-              {marketData?.circulating_supply && marketData?.max_supply && (
-                <div style={{ marginTop: '12px' }}>
-                  <Progress 
-                    percent={Number((marketData.circulating_supply / marketData.max_supply * 100).toFixed(2))} 
-                    strokeColor={{
-                      '0%': '#667eea',
-                      '100%': '#764ba2',
-                    }}
-                    strokeWidth={8}
-                    size="small"
-                  />
-                </div>
-              )}
-            </Card>
-
-            {/* All-Time Stats */}
-            <Card bodyStyle={{ padding: '12px' }} title={<span style={{ fontSize: '13px', fontWeight: 700 }}>All-Time</span>} style={{ marginBottom: '12px', borderRadius: '12px', background: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', border: 'none' }}>
-              <Row gutter={[8, 8]}>
-                <Col span={12}>
-                  <div style={{ padding: '12px', background: 'rgba(173, 208, 228, 0.7)', borderRadius: '8px' }}>
-                    <Text type="secondary" style={{ fontSize: '10px', fontWeight: 600 }}>ATH</Text>
-                    <div><Text strong style={{ fontSize: '16px', color: '#52c41a', fontFamily: 'Inter', fontWeight: 800 }}>${marketData?.ath?.usd?.toLocaleString()}</Text></div>
-                    <Text type="secondary" style={{ fontSize: '9px' }}>
-                      {new Date(marketData?.ath_date?.usd).toLocaleDateString()}
-                    </Text>
-                  </div>
-                </Col>
-                <Col span={12}>
-                  <div style={{ padding: '12px', background: 'rgba(106, 80, 80, 0.7)', borderRadius: '8px' }}>
-                    <Text type="secondary" style={{ fontSize: '10px', fontWeight: 600 }}>ATL</Text>
-                    <div><Text strong style={{ fontSize: '16px', color: '#f5222d', fontFamily: 'Inter', fontWeight: 800 }}>${marketData?.atl?.usd?.toLocaleString()}</Text></div>
-                    <Text type="secondary" style={{ fontSize: '9px' }}>
-                      {new Date(marketData?.atl_date?.usd).toLocaleDateString()}
-                    </Text>
-                  </div>
-                </Col>
-              </Row>
-            </Card>
-
-            {/* What If Calculator */}
+            {/* CALCULATOR: Special Border Glow */}
             <Card 
-              title={<span style={{ fontSize: '13px', fontWeight: 700 }}><RocketOutlined /> What If Calculator</span>}
-              style={{ borderRadius: '12px', background: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)', border: 'none' }}
-              bodyStyle={{ padding: '12px' }}
+              className="glassmorphic-card" 
+              style={{ marginTop: '16px', border: '1px solid rgba(37, 99, 235, 0.4)' }}
+              title={<span style={{color: '#fff'}}><RocketOutlined /> Profit Projection</span>}
             >
-              <Text style={{ fontSize: '11px', color: '#fff', display: 'block', marginBottom: '8px' }}>
-                What if {coinDetails.name} reaches {whatIfMultiplier}x ATH?
-              </Text>
-              <Slider
-                min={0.5}
-                max={5}
-                step={0.1}
-                value={whatIfMultiplier}
-                onChange={setWhatIfMultiplier}
-                marks={{
-                  0.5: { style: { fontSize: '10px' }, label: '0.5x' },
-                  1: { style: { fontSize: '10px' }, label: 'ATH' },
-                  2: { style: { fontSize: '10px' }, label: '2x' },
-                  3: { style: { fontSize: '10px' }, label: '3x' },
-                  5: { style: { fontSize: '10px' }, label: '5x' }
-                }}
-                style={{ marginBottom: '12px' }}
-              />
-              <Row gutter={12}>
-                <Col span={12}>
-                  <div style={{ padding: '8px', background: 'rgba(102, 67, 67, 0.9)', borderRadius: '8px', textAlign: 'center' }}>
-                    <Text type="secondary" style={{ fontSize: '9px', display: 'block' }}>Price</Text>
-                    <Text strong style={{ fontSize: '14px', color: '#1a1a1a', fontWeight: 800 }}>
-                      ${((marketData?.ath?.usd || 0) * whatIfMultiplier).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    </Text>
-                  </div>
+              <Row align="middle" gutter={32}>
+                <Col xs={24} md={12}>
+                  <Text style={{ color: 'var(--text-secondary)' }}>Target Multiplier: <span style={{ color: 'var(--accent-tertiary)', fontWeight: 'bold' }}>{whatIfMultiplier}x ATH</span></Text>
+                  <Slider min={0.5} max={10} step={0.5} value={whatIfMultiplier} onChange={setWhatIfMultiplier} />
                 </Col>
-                <Col span={12}>
-                  <div style={{ padding: '8px', background: 'rgba(130, 148, 187, 0.9)', borderRadius: '8px', textAlign: 'center' }}>
-                    <Text type="secondary" style={{ fontSize: '9px', display: 'block' }}>Gain</Text>
-                    <Text strong style={{ fontSize: '14px', color: '#52c41a', fontWeight: 800 }}>
-                      {(((marketData?.ath?.usd || 0) * whatIfMultiplier / (marketData?.current_price?.usd || 1) - 1) * 100).toFixed(0)}%
-                    </Text>
+                <Col xs={24} md={12}>
+                  <div style={{ background: 'rgba(37, 99, 235, 0.1)', padding: '15px', borderRadius: '12px', border: '1px dashed var(--accent-primary)' }}>
+                    <Row justify="space-between">
+                      <Text style={{color: 'var(--text-secondary)'}}>Projected Price:</Text>
+                      <Text style={{color: '#fff', fontWeight: '800'}}>${((marketData?.ath?.usd || 0) * whatIfMultiplier).toLocaleString()}</Text>
+                    </Row>
+                    <Row justify="space-between" style={{ marginTop: '8px' }}>
+                      <Text style={{color: 'var(--text-secondary)'}}>Potential Gain:</Text>
+                      <Text style={{color: '#10b981', fontWeight: '800'}}>
+                        {(((marketData?.ath?.usd || 0) * whatIfMultiplier / (marketData?.current_price?.usd || 1) - 1) * 100).toFixed(0)}%
+                      </Text>
+                    </Row>
                   </div>
                 </Col>
               </Row>
             </Card>
           </Tabs.TabPane>
 
-          <Tabs.TabPane tab={<span style={{ fontSize: '13px', fontWeight: 600 }}><ThunderboltOutlined /> AI Sentiment</span>} key="2">
+          <Tabs.TabPane tab="AI Sentiment" key="2">
             <AISentiment coinDetails={coinDetails} visible={visible} onSentimentUpdate={setAiSentiment} />
           </Tabs.TabPane>
 
-          <Tabs.TabPane tab={<span style={{ fontSize: '13px', fontWeight: 600 }}>🐋 Whale Watch</span>} key="3">
+          <Tabs.TabPane tab="Whale Watch" key="3">
             <WhaleWatch coinData={coinDetails} coinId={coinId} aiSentiment={aiSentiment} />
           </Tabs.TabPane>
         </Tabs>
